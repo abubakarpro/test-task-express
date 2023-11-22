@@ -43,6 +43,45 @@ const getBestProfession = async (req) => {
   return bestProfessions[0];
 };
 
+
+const getBestClients = async (req) => {
+  console.log("into client");
+  const { Job, Contract, Profile } = req.app.get('models');
+  const { startDate, endDate, limit = 2 } = req.query;
+
+  const sequelize = req.app.get('sequelize');
+  const bestClients = await Profile.findAll({
+    attributes: ['id', 'firstName', 'lastName', [sequelize.fn('SUM', sequelize.col('price')), 'paid']],
+    include: [
+      {
+        model: Contract,
+        as: 'Client',
+        attributes: [],
+        where: {
+          createdAt: {
+            [Op.between]: [new Date(startDate), new Date(endDate)],
+          },
+        },
+        include: [
+          {
+            model: Job,
+            attributes: [],
+            where: { paid: true },
+            required: true,
+          },
+        ],
+      },
+    ],
+    group: ['Profile.id'],
+    order: sequelize.literal('paid DESC'),
+    // limit: parseInt(limit, 10),
+  });
+
+  return bestClients;
+};
+
+
 module.exports = {
   getBestProfession,
+  getBestClients
 };
