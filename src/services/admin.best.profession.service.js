@@ -39,6 +39,7 @@ const getBestProfession = async (req) => {
     subQuery: false,
   });
 
+
   return bestProfessions[0];
 };
 

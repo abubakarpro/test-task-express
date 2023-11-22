@@ -45,6 +45,7 @@ const payJob = async (req) => {
       },
     ],
   });
+
   if (job) {
     if (type == 'client') {
       const amountToBePaid = job.price;
