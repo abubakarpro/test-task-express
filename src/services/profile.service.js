@@ -1,6 +1,7 @@
 const deposit = async (req) => {
   const clientId = req.params.userId;
   const depositAmount = req.body.amount;
+  console.log("depositeAmount", depositAmount)
   const { Job, Contract, Profile } = req.app.get('models');
   const sequelize = req.app.get('sequelize');
   const depositTransaction = await sequelize.transaction();
@@ -8,6 +9,10 @@ const deposit = async (req) => {
 
   try {
     const client = await Profile.findByPk(clientId, { transaction: depositTransaction });
+    if (client.dataValues.type != "client") {
+      response = "No Client found";
+      return response;
+    }
 
     const totalJobsToPay = await Job.findAll(
       {
@@ -31,6 +36,7 @@ const deposit = async (req) => {
       },
       { transaction: depositTransaction },
     );
+    console.log("totalJobsTopay", totalJobsToPay[0].dataValues)
 
     const { totalPrice } = totalJobsToPay[0].dataValues;
     if (totalPrice == null) {
@@ -42,6 +48,7 @@ const deposit = async (req) => {
       response = `Maximum deposit amount reached. Deposit ${depositAmount} is more than 25% of client ${clientId} total of jobs to pay`;
 
     } else {
+      console.log("into here last step")
       await client.increment({ balance: depositAmount }, { transaction: depositTransaction });
 
       client.balance += depositAmount;
@@ -53,6 +60,7 @@ const deposit = async (req) => {
     return response;
 
   } catch (error) {
+    console.log("error", error)
     await depositTransaction.rollback();
   }
 };

@@ -1,5 +1,5 @@
 const express = require('express');
-const { getBestProfession, getBestClients } = require('../controller/admin.best.profession.controller.js');
+const { getBestProfession, getBestClients } = require('../controller/admin.best.controller.js');
 
 const adminRouter = express.Router();
 

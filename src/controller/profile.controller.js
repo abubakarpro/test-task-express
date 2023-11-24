@@ -11,6 +11,9 @@ const deposit = async (req, res) => {
     } else if (typeof response === 'string' && response.includes("There are no unpaid jobs for client")) {
       res.status(httpStatus.NOT_FOUND).json({ message: `${response}` });
 
+    } else if (typeof response === 'string' && response.includes("No Client found")) {
+      res.status(httpStatus.NOT_FOUND).json({ message: `${response}` });
+
     } else {
       res.status(httpStatus.OK).json(response);
     }
