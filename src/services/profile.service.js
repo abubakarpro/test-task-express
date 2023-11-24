@@ -8,6 +8,7 @@ const deposit = async (req) => {
 
   try {
     const client = await Profile.findByPk(clientId, { transaction: depositTransaction });
+    console.log(client.dataValues);
     if (client.dataValues.type != "client") {
       response = "No Client found";
       return response;
@@ -35,19 +36,16 @@ const deposit = async (req) => {
       },
       { transaction: depositTransaction },
     );
-    console.log("totalJobsTopay", totalJobsToPay[0].dataValues)
 
     const { totalPrice } = totalJobsToPay[0].dataValues;
     if (totalPrice == null) {
-      response = `There are no unpaid jobs for client ${clientId}.`;
+      response = `No unpaid jobs for client ${clientId}.`;
     }
 
     const depositThreshold = totalPrice * 0.25;
     if (depositAmount > depositThreshold) {
-      response = `Maximum deposit amount reached. Deposit ${depositAmount} is more than 25% of client ${clientId} total of jobs to pay`;
-
+      response = `client ${client.dataValues.firstName} can't deposit more than 25% his total of jobs to pay`
     } else {
-      console.log("into here last step")
       await client.increment({ balance: depositAmount }, { transaction: depositTransaction });
 
       client.balance += depositAmount;

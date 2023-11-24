@@ -5,7 +5,7 @@ const ProfileService = require('../services/profile.service');
 const deposit = async (req, res) => {
   try {
     const response = await ProfileService.deposit(req);
-    if (typeof response === 'string' && response.includes('Maximum deposit amount reached')) {
+    if (typeof response === 'string' && response.includes('more than 25% his total of jobs to pay')) {
       res.status(httpStatus.CONFLICT).json({ message: `${response}` });
 
     } else if (typeof response === 'string' && response.includes("There are no unpaid jobs for client")) {
