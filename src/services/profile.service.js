@@ -1,7 +1,6 @@
 const deposit = async (req) => {
   const clientId = req.params.userId;
   const depositAmount = req.body.amount;
-  console.log("depositeAmount", depositAmount)
   const { Job, Contract, Profile } = req.app.get('models');
   const sequelize = req.app.get('sequelize');
   const depositTransaction = await sequelize.transaction();
@@ -60,7 +59,6 @@ const deposit = async (req) => {
     return response;
 
   } catch (error) {
-    console.log("error", error)
     await depositTransaction.rollback();
   }
 };
