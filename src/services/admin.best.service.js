@@ -58,23 +58,29 @@ const getBestClients = async (req) => {
         as: 'Client',
         attributes: [],
         where: {
-          createdAt: {
-            [Op.between]: [new Date(startDate), new Date(endDate)],
-          },
+          // createdAt: {
+          //   [Op.between]: [new Date(startDate), new Date(endDate)],
+          // },
         },
         include: [
           {
             model: Job,
             attributes: [],
-            where: { paid: true },
+            where: {
+              paid: true,
+              paymentDate: {
+                [Op.gte]: startDate,
+                [Op.lte]: endDate,
+              },
+            },
             required: true,
           },
         ],
       },
     ],
     group: ['Profile.id'],
-    order: sequelize.literal('paid DESC'),
-    // limit: parseInt(limit, 10),
+    order: [[sequelize.col('paid'), 'DESC']],
+    // limit: 1
   });
 
   return bestClients;
