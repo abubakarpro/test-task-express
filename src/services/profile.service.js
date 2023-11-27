@@ -8,7 +8,6 @@ const deposit = async (req) => {
 
   try {
     const client = await Profile.findByPk(clientId, { transaction: depositTransaction });
-    console.log(client.dataValues);
     if (client.dataValues.type != "client") {
       response = "No Client found";
       return response;

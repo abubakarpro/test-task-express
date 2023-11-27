@@ -1,12 +1,13 @@
 const { Op } = require('sequelize');
 
 const getBestProfession = async (req) => {
-  console.log("into profession");
   const { Job, Contract, Profile } = req.app.get('models');
   const { startDate, endDate } = req.query;
   const sequelize = req.app.get('sequelize');
 
   const bestProfessions = await Profile.findAll({
+    limit: 1,
+    subQuery: false,
     attributes: ['profession', [sequelize.fn('SUM', sequelize.col('price')), 'earned']],
     include: [
       {
@@ -35,8 +36,6 @@ const getBestProfession = async (req) => {
     },
     group: ['profession'],
     order: [[sequelize.col('earned'), 'DESC']],
-    limit: 1,
-    subQuery: false,
   });
 
 
@@ -45,23 +44,24 @@ const getBestProfession = async (req) => {
 
 
 const getBestClients = async (req) => {
-  console.log("into client");
+  const { startDate, endDate, limit } = req.query;
+  let updatelimit = limit;
   const { Job, Contract, Profile } = req.app.get('models');
-  const { startDate, endDate, limit = 2 } = req.query;
+
+  if (!limit) {
+    updatelimit = 2;
+  }
 
   const sequelize = req.app.get('sequelize');
   const bestClients = await Profile.findAll({
+    limit: updatelimit,
+    subQuery: false,
     attributes: ['id', 'firstName', 'lastName', [sequelize.fn('SUM', sequelize.col('price')), 'paid']],
     include: [
       {
         model: Contract,
         as: 'Client',
         attributes: [],
-        where: {
-          // createdAt: {
-          //   [Op.between]: [new Date(startDate), new Date(endDate)],
-          // },
-        },
         include: [
           {
             model: Job,
@@ -80,7 +80,6 @@ const getBestClients = async (req) => {
     ],
     group: ['Profile.id'],
     order: [[sequelize.col('paid'), 'DESC']],
-    // limit: 1
   });
 
   return bestClients;

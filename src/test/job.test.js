@@ -2,7 +2,6 @@ const request = require('supertest');
 const app = require('../app');
 
 describe('Job API', () => {
-  //Success Test Case
   it('Should return all unpaid jobs for a user (client or contractor)', async () => {
     const expectedResponse = [
       {
@@ -33,7 +32,6 @@ describe('Job API', () => {
     expect(response.body).toEqual(expectedResponse);
   });
 
-  //Failure test case
   it('should return an empty array when there are no unpaid jobs for the user', async () => {
     const response = await request(app).get(`/jobs/unpaid`).set('profile_id', 5);
     expect(response.status).toBe(200);

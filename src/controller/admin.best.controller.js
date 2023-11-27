@@ -19,7 +19,6 @@ const getBestProfession = async (req, res) => {
 };
 
 const getBestClients = async (req, res) => {
-  console.log("into client best");
   try {
     const foundBestClients = await AdminService.getBestClients(req);
 
@@ -29,7 +28,6 @@ const getBestClients = async (req, res) => {
       res.status(httpStatus.OK).json(foundBestClients);
     }
   } catch (error) {
-    console.log("error", error)
     res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json({ message: 'Error occurred while finding best best clients', error });
