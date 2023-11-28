@@ -1,7 +1,7 @@
 const deposit = async (req) => {
+  const { Job, Contract, Profile } = req.app.get('models');
   const clientId = req.params.userId;
   const depositAmount = req.body.amount;
-  const { Job, Contract, Profile } = req.app.get('models');
   const sequelize = req.app.get('sequelize');
   const depositTransaction = await sequelize.transaction();
   let response = {};
@@ -13,7 +13,7 @@ const deposit = async (req) => {
       return response;
     }
 
-    const totalJobsToPay = await Job.findAll(
+    const totalJobsPay = await Job.findAll(
       {
         attributes: {
           include: [[sequelize.fn('SUM', sequelize.col('price')), 'totalPrice']],
@@ -36,13 +36,14 @@ const deposit = async (req) => {
       { transaction: depositTransaction },
     );
 
-    const { totalPrice } = totalJobsToPay[0].dataValues;
+    const totalPrice = totalJobsPay[0].dataValues.totalPrice;
+
     if (totalPrice == null) {
       response = `No unpaid jobs for client ${clientId}.`;
     }
 
-    const depositThreshold = totalPrice * 0.25;
-    if (depositAmount > depositThreshold) {
+    const depositLimit = totalPrice * 0.25;
+    if (depositAmount > depositLimit) {
       response = `client ${client.dataValues.firstName} can't deposit more than 25% his total of jobs to pay`
     } else {
       await client.increment({ balance: depositAmount }, { transaction: depositTransaction });

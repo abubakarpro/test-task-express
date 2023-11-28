@@ -37,16 +37,17 @@ const getBestProfession = async (req) => {
     group: ['profession'],
     order: [[sequelize.col('earned'), 'DESC']],
   });
+  const getProfessions = bestProfessions[0];
 
-
-  return bestProfessions[0];
+  return getProfessions;
 };
 
 
 const getBestClients = async (req) => {
   const { startDate, endDate, limit } = req.query;
-  let updatelimit = limit;
   const { Job, Contract, Profile } = req.app.get('models');
+
+  let updatelimit = limit;
 
   if (!limit) {
     updatelimit = 2;

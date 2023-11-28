@@ -26,9 +26,15 @@ const payJob = async (req, res) => {
       res.status(httpStatus.NOT_FOUND).json({ message: `Job not found` });
 
     } else if (typeof response === 'string' && response.includes('No paid found for this job')) {
-      res.status(httpStatus.CONFLICT).json({ message: `No paid found for this job` });
+      res.status(httpStatus.CONFLICT).json({ message: response });
 
-    } else {
+    } else if (typeof response === 'string' && response.includes('Insufficient balance to pay')) {
+      res.status(httpStatus.CONFLICT).json({ message: response });
+
+    } else if (typeof response === 'string' && response.includes('Payment process failed. Please try again')) {
+      res.status(httpStatus.CONFLICT).json({ message: response });
+    }
+    else {
       res.status(httpStatus.OK).json({ message: response });
     }
 

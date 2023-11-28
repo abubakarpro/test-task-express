@@ -19,7 +19,6 @@ const deposit = async (req, res) => {
     }
 
   } catch (error) {
-    console.trace(error)
     res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json({ message: 'Error occurred while depositing money' });

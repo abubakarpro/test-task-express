@@ -36,55 +36,47 @@ const payJob = async (req) => {
   const sequelize = req.app.get('sequelize');
 
   let response = '';
-  const job = await Job.findOne({
-    where: { id: jobId, paid: { [Op.is]: null } },
-    include: [
-      {
+
+  try {
+    const job = await Job.findOne({
+      where: { id: jobId, paid: null },
+      include: [{
         model: Contract,
         where: { status: 'in_progress', ClientId: id },
-      },
-    ],
-  });
+      }],
+    });
 
-  if (job) {
-    if (type == 'client') {
-      const amountToBePaid = job.price;
+    if (job && type === 'client') {
+      const paidAmount = job.price;
       const contractorId = job.Contract.ContractorId;
-      if (balance >= amountToBePaid) {
-        const paymentTransaction = await sequelize.transaction();
-        try {
-          await Promise.all([
-            Profile.update(
-              { balance: sequelize.literal(`balance - ${amountToBePaid}`) },
-              { where: { id } },
-              { transaction: paymentTransaction },
-            ),
 
-            Profile.update(
-              { balance: sequelize.literal(`balance + ${amountToBePaid}`) },
-              { where: { id: contractorId } },
-              { transaction: paymentTransaction },
-            ),
+      if (balance >= paidAmount) {
+        await sequelize.transaction(async (paymentTransaction) => {
+          await Profile.update(
+            { balance: sequelize.literal(`balance - ${paidAmount}`) },
+            { where: { id }, transaction: paymentTransaction },
+          );
 
-            Job.update(
-              { paid: 1, paymentDate: new Date() },
-              { where: { id: jobId } },
-              { transaction: paymentTransaction },
-            ),
-          ]);
+          await Profile.update(
+            { balance: sequelize.literal(`balance + ${paidAmount}`) },
+            { where: { id: contractorId }, transaction: paymentTransaction },
+          );
 
-          await paymentTransaction.commit();
+          await Job.update(
+            { paid: 1, paymentDate: new Date() },
+            { where: { id: jobId }, transaction: paymentTransaction },
+          );
+        });
 
-          response = `Payment of ${amountToBePaid} for ${job.description} has been made successfully.`;
-        } catch (error) {
-          await paymentTransaction.rollback();
-
-          response = `Payment of ${amountToBePaid} for ${job.description} failed. Please try again.`;
-        }
+        response = `Payment of ${paidAmount} for ${job.description} has been made successfully.`;
+      } else {
+        response = `Insufficient balance to pay for ${job.description}.`;
       }
+    } else {
+      response = 'No paid found for this job';
     }
-  } else {
-    response = `No paid found for this job`;
+  } catch (error) {
+    response = 'Payment process failed. Please try again.';
   }
 
   return response;
