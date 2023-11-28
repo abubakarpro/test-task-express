@@ -3,7 +3,7 @@ const app = require('../app');
 
 
 describe('Admin API', () => {
-  it('Shoud returns the profession that earned the most money (sum of jobs paid) for any contactor', async () => {
+  it('Should returns the profession that earned the most money (sum of jobs paid) for any contactor', async () => {
     const expectedResponse = {
       "profession": "Programmer",
       "earned": 2483
@@ -17,7 +17,7 @@ describe('Admin API', () => {
     expect(response.body).toEqual(expect.objectContaining(expectedResponse));
   });
 
-  it('Shoud returns the no best profession that earned the most money (sum of jobs paid) for any contactor', async () => {
+  it('Should returns the no best profession that earned the most money (sum of jobs paid) for any contactor', async () => {
     const expectedResponse = {
       "message": "No best profession found"
     }
@@ -31,7 +31,7 @@ describe('Admin API', () => {
   });
 
 
-  it('Shoud returns the best clients', async () => {
+  it('Should returns the best clients', async () => {
     const expectedResponse = [
       {
         "id": 4,
